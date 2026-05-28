@@ -1,0 +1,35 @@
+<Root>
+  <starter key="basic" label="根启动器" desc="基础启动器：加载基础配置base.conf，log4j，细胞工程，堆栈日志等" class="bap.BasicStarter" optional="false" enable="true">
+    <param key="stack.save.interval.second" label="定时保存堆栈日志的时间间隔（秒）" type="int" value="30"/>
+    <param key="stack.keep.max.file.count" label="堆栈日志文件保留数" type="int" value="720"/>
+  </starter>
+  <starter key="crpc" label="RPC服务" desc="启动NIO服务" class="com.leavay.nio.crpc.CRpcStarter" optional="false" enable="true">
+    <depend key="basic"/>
+    <param key="com.leavay.nio.port" label="RPC端口（NIO）" type="int" value="2020"/>
+  </starter>
+  <starter key="dao" label="持久层" desc="启动DAO层服务" class="com.leavay.dfc.mgr.starter.CDaoStarter" optional="false" enable="true">
+    <depend key="crpc"/>
+    <param key="base.DBPool.driverName" label="DB驱动类" type="string" value="org.postgresql.Driver"/>
+    <param key="base.DBPool.dbName" label="DB连接URL" type="string" value="jdbc:postgresql://127.0.0.1:5432/gpfv2_test3"/>
+    <param key="base.DBPool.dbuser" label="RPC端口（NIO）" type="string" value="postgres"/>
+    <param key="base.DBPool.dbpasswd" label="RPC端口（NIO）" type="string" value="postgres"/>
+  </starter>
+  <starter key="webservice" label="WEB接口" desc="通用的WEB配置服务" class="web.WebServiceStarter" optional="false" enable="true">
+    <depend key="basic"/>
+    <depend key="dao"/>
+    <before key="dao"/>
+    <param key="init_system_config" label="" type="boolean" value="false"/>
+  </starter>
+  <starter key="jetty" label="WEB服务" desc="基于Jetty的WEB服务" class="jetty.emb.JettyStarter" optional="false" enable="true">
+    <depend key="basic"/>
+    <depend key="dao"/>
+    <before key="dao"/>
+    <param key="jetty.http.port" label="jetty http端口" type="int" value="8090"/>
+    <param key="jetty.resource.path" label="jetty静态资源路径" type="string" value="/webapps"/>
+    <param key="jetty.servlet.class" label="jetty部署的servlet的类" type="string" value="web.servlet.DispatcherServlet"/>
+  </starter>
+  <starter key="gpf" label="GPF" desc="GPF服务" class="gpf.GpfStarter" optional="false" enable="true">
+    <depend key="basic"/>
+    <depend key="webservice"/>
+  </starter>
+</Root>

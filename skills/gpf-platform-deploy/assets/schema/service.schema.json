@@ -1,0 +1,425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "service.schema.json",
+  "title": "GPF Web Service Configuration",
+  "description": "GPF Web服务器配置文件Schema，用于校验service.json",
+  "type": "object",
+  "required": ["@c"],
+  "properties": {
+    "@c": {
+      "type": "string",
+      "const": "web.config.Configuration",
+      "description": "配置类类型标识"
+    },
+    "dirAllowed": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否允许目录列表访问"
+    },
+    "handler": {
+      "allOf": [
+        { "$ref": "#/definitions/typeReference" },
+        {
+          "properties": {
+            "@c": {
+              "enum": [
+                "web.core.GdfDefaultServletHttpRequestHandler",
+                "web.core.GdfLoginHttpRequestHandler",
+                "web.core.SSOLoginHttpRequestHandler",
+                "web.core.GdfDefaultServletHttpRequestHandlerV1",
+                "web.core.UserDefineHttpRequestHandler"
+              ],
+              "description": "HTTP请求处理器实现类"
+            }
+          }
+        }
+      ],
+      "description": "HTTP请求处理器"
+    },
+    "respHandler": {
+      "allOf": [
+        { "$ref": "#/definitions/typeReference" },
+        {
+          "properties": {
+            "@c": {
+              "enum": [
+                "web.core.DefaultHttpResponseHandler"
+              ],
+              "description": "HTTP响应处理器实现类"
+            }
+          }
+        }
+      ],
+      "description": "HTTP响应处理器"
+    },
+    "multipartResolver": {
+      "allOf": [
+        { "$ref": "#/definitions/typeReference" },
+        {
+          "properties": {
+            "@c": {
+              "enum": [
+                "web.multipart.StandardServletMultipartResolver"
+              ],
+              "description": "文件上传解析器实现类"
+            }
+          }
+        }
+      ],
+      "description": "文件上传解析器"
+    },
+    "handlerAdapters": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "#/definitions/typeReference" },
+          {
+            "properties": {
+              "@c": {
+                "enum": [
+                  "web.core.HttpRequestHandlerAdapter"
+                ],
+                "description": "处理器适配器实现类"
+              }
+            }
+          }
+        ]
+      },
+      "description": "处理器适配器列表"
+    },
+    "handlerMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/handlerMapping"
+      },
+      "description": "请求映射配置列表"
+    },
+    "handlerExceptionResolvers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/exceptionResolver"
+      },
+      "description": "异常解析器列表"
+    },
+    "servletMapping": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/servletMapping"
+      },
+      "default": [],
+      "description": "Servlet映射列表"
+    },
+    "filterMapping": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/filterMapping"
+      },
+      "default": [],
+      "description": "过滤器映射列表"
+    },
+    "crossOriginFilter": {
+      "$ref": "#/definitions/crossOriginFilter",
+      "description": "跨域过滤器配置"
+    },
+    "headerFilter": {
+      "$ref": "#/definitions/headerFilter",
+      "description": "响应头过滤器配置"
+    },
+    "dosFilter": {
+      "$ref": "#/definitions/dosFilter",
+      "description": "DoS攻击防护配置"
+    },
+    "resourceDirs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "静态资源目录映射，key为URL路径前缀，value为文件系统路径"
+    }
+  },
+  "definitions": {
+    "typeReference": {
+      "type": "object",
+      "required": ["@c"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "description": "完整Java类名"
+        }
+      },
+      "additionalProperties": true
+    },
+    "handlerMapping": {
+      "type": "object",
+      "required": ["@c"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "const": "web.servlet.handler.DefaultHandlerMapping",
+          "description": "HandlerMapping实现类"
+        },
+        "defaultHandler": {
+          "allOf": [
+            { "$ref": "#/definitions/typeReference" },
+            {
+              "properties": {
+                "@c": {
+                  "enum": [
+                    "web.core.GdfDefaultServletHttpRequestHandler",
+                    "web.core.GdfLoginHttpRequestHandler",
+                    "web.core.SSOLoginHttpRequestHandler",
+                    "web.core.GdfDefaultServletHttpRequestHandlerV1",
+                    "web.core.UserDefineHttpRequestHandler"
+                  ],
+                  "description": "默认处理器实现类"
+                }
+              }
+            }
+          ],
+          "description": "默认处理器"
+        },
+        "includePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "匹配的URL模式列表，支持 /path 精确匹配、/path/* 一级匹配、/path/** 多级匹配"
+        },
+        "excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "排除的URL模式列表"
+        },
+        "interceptors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mappedInterceptor"
+          },
+          "default": [],
+          "description": "拦截器列表"
+        }
+      },
+      "additionalProperties": true
+    },
+    "mappedInterceptor": {
+      "type": "object",
+      "required": ["@c", "interceptor"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "const": "web.servlet.handler.MappedInterceptor",
+          "description": "映射拦截器类标识"
+        },
+        "interceptor": {
+          "allOf": [
+            { "$ref": "#/definitions/typeReference" },
+            {
+              "properties": {
+                "@c": {
+                  "enum": [
+                    "web.servlet.handler.RequestInfoInterceptor",
+                    "web.servlet.handler.GdfValidateLoginInterceptor"
+                  ],
+                  "description": "拦截器实现类"
+                }
+              }
+            }
+          ],
+          "description": "拦截器实例"
+        },
+        "includePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "拦截器生效的URL模式"
+        },
+        "excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "拦截器排除的URL模式"
+        }
+      },
+      "additionalProperties": true
+    },
+    "exceptionResolver": {
+      "type": "object",
+      "required": ["@c"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "const": "web.core.DefaultHandlerExceptionResolver",
+          "description": "异常解析器类标识"
+        },
+        "loginErrorClass": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "登录错误类名列表"
+        },
+        "alterErrorClass": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "需要特殊处理的异常类名列表"
+        }
+      },
+      "additionalProperties": true
+    },
+    "servletMapping": {
+      "type": "object",
+      "required": ["@c", "servlet", "urlPatterns"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "const": "web.config.ServletMapping",
+          "description": "Servlet映射类标识"
+        },
+        "servlet": {
+          "type": "string",
+          "description": "Servlet完整类名",
+          "examples": [
+            "web.servlet.DispatcherServlet"
+          ]
+        },
+        "urlPatterns": {
+          "type": "string",
+          "description": "URL模式，多个模式用逗号分隔",
+          "examples": [
+            "/api/*",
+            "/v1/*,/v2/*",
+            "/app,/service/*"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "filterMapping": {
+      "type": "object",
+      "required": ["@c", "filterClass", "urlPatterns"],
+      "properties": {
+        "@c": {
+          "type": "string",
+          "const": "web.config.FilterMapping",
+          "description": "过滤器映射类标识"
+        },
+        "filterClass": {
+          "type": "string",
+          "description": "过滤器完整类名"
+        },
+        "urlPatterns": {
+          "type": "string",
+          "description": "URL模式，多个模式用逗号分隔"
+        },
+        "dispatchTypes": {
+          "type": "string",
+          "description": "分发类型，多个类型用逗号分隔。可选值: REQUEST, FORWARD, INCLUDE, ERROR, ASYNC",
+          "enum": [
+            "REQUEST",
+            "FORWARD",
+            "INCLUDE",
+            "ERROR",
+            "ASYNC",
+            "REQUEST,FORWARD",
+            "REQUEST,INCLUDE",
+            "REQUEST,ERROR",
+            "REQUEST,ASYNC",
+            "FORWARD,INCLUDE",
+            "FORWARD,ERROR",
+            "FORWARD,ASYNC",
+            "INCLUDE,ERROR",
+            "INCLUDE,ASYNC",
+            "ERROR,ASYNC",
+            "REQUEST,FORWARD,INCLUDE",
+            "REQUEST,FORWARD,ERROR",
+            "REQUEST,FORWARD,ASYNC",
+            "REQUEST,INCLUDE,ERROR",
+            "REQUEST,INCLUDE,ASYNC",
+            "REQUEST,ERROR,ASYNC",
+            "FORWARD,INCLUDE,ERROR",
+            "FORWARD,INCLUDE,ASYNC",
+            "FORWARD,ERROR,ASYNC",
+            "INCLUDE,ERROR,ASYNC",
+            "REQUEST,FORWARD,INCLUDE,ERROR",
+            "REQUEST,FORWARD,INCLUDE,ASYNC",
+            "REQUEST,FORWARD,ERROR,ASYNC",
+            "REQUEST,INCLUDE,ERROR,ASYNC",
+            "FORWARD,INCLUDE,ERROR,ASYNC",
+            "REQUEST,FORWARD,INCLUDE,ERROR,ASYNC"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "crossOriginFilter": {
+      "type": "object",
+      "description": "跨域资源共享(CORS)配置",
+      "properties": {
+        "allowedOrigins": {
+          "type": "string",
+          "description": "允许的来源域名，* 表示允许所有来源",
+          "default": "*"
+        },
+        "allowedMethods": {
+          "type": "string",
+          "description": "允许的HTTP方法，多个方法用逗号分隔",
+          "default": "GET,POST,PUT,DELETE,OPTIONS,HEAD"
+        },
+        "allowedHeaders": {
+          "type": "string",
+          "description": "允许的请求头，* 表示允许所有请求头",
+          "default": "*"
+        },
+        "chainPreflight": {
+          "type": "string",
+          "enum": ["true", "false"],
+          "description": "是否链式处理预检请求",
+          "default": "false"
+        }
+      },
+      "additionalProperties": true
+    },
+    "headerFilter": {
+      "type": "object",
+      "description": "HTTP响应头配置",
+      "properties": {
+        "headerConfig": {
+          "type": "string",
+          "description": "响应头设置指令，格式: set Header-Name: Header-Value",
+          "pattern": "^set\\s+.+:\\s*.+$",
+          "examples": [
+            "set X-Frame-Options: SAMEORIGIN",
+            "set X-Content-Type-Options: nosniff",
+            "set Strict-Transport-Security: max-age=31536000"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "dosFilter": {
+      "type": "object",
+      "description": "DoS(Denial of Service)攻击防护配置",
+      "properties": {
+        "maxRequestMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "请求最大处理时间（毫秒），超时将被中断",
+          "default": 60000
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

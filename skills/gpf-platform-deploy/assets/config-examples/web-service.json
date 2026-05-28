@@ -1,0 +1,48 @@
+{
+  "handler": {
+    "@c": "web.core.DefaultServletHttpRequestHandlerV2"
+  },
+  "respHandler": {
+    "@c": "web.core.DefaultHttpResponseHandler"
+  },
+  "multipartResolver": {
+    "resolveLazily": true,
+    "@c": "web.multipart.StandardServletMultipartResolver"
+  },
+  "handlerAdapters": [
+    {
+      "@c": "web.core.HttpRequestHandlerAdapter"
+    }
+  ],
+  "handlerMappings": [
+    {
+      "defaultHandler": {
+        "@c": "web.core.LoginHttpRequestHandlerV2"
+      },
+      "includePatterns": [
+        "/ebook/dataProcess"
+      ],
+      "excludePatterns": [],
+      "interceptors": [],
+      "@c": "web.servlet.handler.DefaultHandlerMapping"
+    }
+  ],
+  "handlerExceptionResolvers": [
+    {
+      "loginErrorClass": [],
+      "alterErrorClass": [
+        "gpf.exception.VerifyException"
+      ],
+      "@c": "web.core.DefaultHandlerExceptionResolver"
+    }
+  ],
+  "servletMapping": [
+    {
+      "servlet": "web.servlet.DispatcherServlet",
+      "urlPatterns": "/register/*,/openapi/*",
+      "@c": "web.config.ServletMapping"
+    }
+  ],
+  "resourceDirs": {},
+  "@c": "web.config.Configuration"
+}

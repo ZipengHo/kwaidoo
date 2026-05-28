@@ -1,0 +1,39 @@
+<Root>
+  <starter key="basic" label="根启动器" class="bap.BasicStarter" desc="基础启动器：加载基础配置base.conf，log4j，细胞工程，堆栈日志等"/>
+  <starter key="agentBasic" label="代理基础" class="bap.ms.agent.AgentBasicStarter" desc="重定向打印输出到日志文件，生成PID文件，启动RPC">
+    <depend key="basic"/>
+    <param key="agent.redirect.output" label="是否转存屏幕打印" type="boolean" value="true"/>
+  </starter>
+  <starter key="dao" label="持久层" class="com.leavay.dfc.mgr.starter.CDaoStarter" desc="启动DAO层服务" enable="true">
+    <depend key="basic"/>
+    <param key="cdao.cluster.is.slave" label="是否仆从模式" type="boolean" value="true"/>
+    <param key="cdao.cluster.master.uri" label="从属于目标机地址URI" value="ws://192.168.0.60:2020"/>
+    <param key="base.DBPool.driverName" label="DB驱动类" type="string" value="org.postgresql.Driver"/>
+    <param key="base.DBPool.dbName" label="DB连接URL" type="string" value="jdbc:postgresql://192.168.0.60:5432/cdao"/>
+  </starter>
+  <starter key="tinyServiceServant" label="微服务集群随从" class="tiny.service.ServantStarter" desc="提供集群访问相关服务，跟随集群首领" optional="true" enable="true">
+    <depend key="dao"/>
+    <param key="tiny.service.chief.uri" label="微服务首领地址URI" type="string" value="ws://192.168.0.60:2020"/>
+    <param key="tiny.service.my.uri" label="我的地址URI" value="ws://192.168.0.60:2020"/>
+  </starter>
+  <starter key="tinyServiceMember" label="微服务成员" class="tiny.service.MemberStarter" desc="加入微服务" optional="true" enable="true">
+    <depend key="dao"/>
+    <param key="tiny.service.chief.uri" label="微服务首领地址URI" type="string" value="ws://192.168.0.60:2020"/>
+    <param key="tiny.service.my.uri" label="我的地址URI" value="ws://192.168.0.60:8001"/>
+  </starter>
+  <starter key="jetty" label="WEB服务" class="jetty.emb.JettyStarter" desc="基于Jetty的WEB服务" enable="true">
+    <depend key="basic"/>
+    <depend key="dao"/>
+    <param key="jetty.http.port" label="jetty http端口" type="int" value="8090"/>
+  </starter>
+  <starter key="webservice" label="WEB接口" class="web.WebServiceStarter" desc="通用的WEB配置服务" enable="true">
+    <depend key="basic"/>
+    <depend key="dao"/>
+    <param key="init_system_config" label="" type="boolean" value="false"/>
+  </starter>
+  <starter key="gpfAgent" label="GPF代理" class="gpf.GpfAgentStarter" desc="GPF代理服务" optional="true" enable="true">
+    <depend key="basic"/>
+    <depend key="webservice"/>
+    <param key="web.access.whitelist" label="web访问时的白名单地址" type="string" value=""/>
+  </starter>
+</Root>

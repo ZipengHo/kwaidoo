@@ -1,0 +1,33 @@
+# GPF 规则函数检查清单
+
+- 是否明确了规则类型和触发场景
+- 是否明确按 `CellIntf` 体系实现规则函数
+- 包名是否以 `cell.` 开头
+- 是否使用 `cell.{项目名}.rule`
+- 是否拿到了用户明确提供的表单元数据信息
+- 是否避免编造不存在的表单属性、状态字段、模型字段、编码字段或关联字段
+- 如果缺失必要元数据，是否先停下来向用户确认，而不是继续生成猜测代码
+- 是否避免在方法体里直接写表单属性名魔法值
+- 表单属性名、状态字段名、关联字段名是否统一定义在类定义上再使用
+- 是否补齐类级和方法级声明
+- 是否区分了业务参数和环境变量
+- 是否按规则类型选择了最小必要环境变量，而不是把多套场景变量一起声明
+- 如果使用 `$output$`，是否确认当前场景会注入运行输出对象
+- 如果使用 `$output$`，是否只读取前置规则或节点结果，而不是把它当成当前规则函数的返回值容器
+- 如果在内存流中使用 `$output$`，是否按节点名称从 `RpcMap<Object>` 读取节点返回值
+- 是否说明了返回值和异常行为
+- 是否避免字段名称和字段编码混用
+- 如果是数据过滤，是否由业务字段名在函数内转换为字段编码
+- 如果是界面填值，是否明确哪些 API 必须用字段编码
+- 如果是自动提交或待办通知，是否写清配置位置并真正设置回调参数
+- 如果是路由计算，是否明确选择 `Pair<Boolean, String>` 单目标路由判断或 `RouterOption` 自主路由接管
+- 如果返回 `RouterOption`，是否说明当前节点所有离开路由规则都会被接管，不再继续按 `Pair<Boolean, String>` 判断
+- 如果是身份匹配，是否明确支持 `matchUser` 与 `queryUser` 两种运行模式
+- 如果是身份匹配，是否使用 `$env$` 注入 `Map<String,Object> env`，而不是旧版 `$context$` / `IContext context`
+- 如果是身份匹配的 `matchUser` 模式，是否返回初始化后的 `IdentifyMatchParam` 且设置了 `matchExpression`
+- 如果是身份匹配的 `queryUser` 模式，是否返回当前身份规则匹配的 `List<User>`
+- 如果属于权限领域规则函数，是否仍保持规则函数主技能语义，而不是展开成独立权限引擎设计
+- 如果是动态权限辅助，是否只操作当前权限对象而没有越界成完整权限矩阵实现
+- 如果是 CM服务调用规则，是否使用 `NCMDataService`、`NCMOperationParameter`、`RpcMap` 和 `ContextSystemVarKey.$form$` 调用目标 CM 操作
+- 如果是 CM服务调用规则，是否避免了 `ContextModelMgr`、`DriverDto`、`Methods`、`cloneContext(targetCm)`、`executeCmMethod(...)` 这类绕过 `NCMDataService` 的内部执行方式
+- 如果是 CM服务调用规则，业务域是否从当前 `$context$` / `$ruleNamespace$` 推导，而不是写死 `domain`
